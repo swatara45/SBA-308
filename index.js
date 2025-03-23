@@ -1,5 +1,3 @@
-// EXAMPLE from Sandbox
-// The provided course information.
 const CourseInfo = {
    id: 451,
    name: "Introduction to JavaScript"
@@ -98,9 +96,7 @@ const LearnerSubmissions = [
     }
 
 
-   /////////////////////////////////////////////////////
-// ALL HELPER FUNCTIONS HERE
-
+  
 // Helper function to get the date base on string date, if no argument then return today date
 function getDate(date) {
    let dateObj;
