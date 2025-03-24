@@ -209,7 +209,7 @@ function getLearnerScore(learnerID, learnerSubmission, assignmentArr) {
    return learnerScoreObj;
 }
 
-// MAIN FUNCTION FOR FIRST APPROACH
+// Main function
 function getLearnerData(courseInfo, assignmentGroup, learnerSubmission) {
    // throw an error if the course id do not match
    try {
