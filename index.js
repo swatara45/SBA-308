@@ -1,3 +1,4 @@
+// The provided course information.
 const CourseInfo = {
    id: 451,
    name: "Introduction to JavaScript"
@@ -96,7 +97,7 @@ const LearnerSubmissions = [
     }
 
 
-  
+
 // Helper function to get the date base on string date, if no argument then return today date
 function getDate(date) {
    let dateObj;
@@ -134,7 +135,7 @@ function getDueTime(id, assignmentArr) {
    throw new Error('The due time for this assignment ID cannot be found');
 }
 
-// HELPER FUNCTION to get learner unique id (a set)
+// Helper to get learner unique id (a set)
 function getLearnerUniqueID (learnerSubmission) {
    const uniqueSet = new Set();
    for (let i=0; i < learnerSubmission.length; i++) {
@@ -145,7 +146,7 @@ function getLearnerUniqueID (learnerSubmission) {
    return uniqueSet;
 }
 
-// HELPER FUNCTION to get average score - DID NOT HAVE THE CORRECT ANSWER
+// Helper to get average score 
 function getAverageScore(scoreObj) {
    const totalKeys = Object.keys(scoreObj).length;
    let totalPoints = 0;
@@ -156,9 +157,7 @@ function getAverageScore(scoreObj) {
 }
 
 
-// FIRST Approach: calculate based on the student ID, make a function to compile all the submitted assignments and score for each student ID, store it as an object, then use this info in the main function to process further.
-// This approach will need to process the learner submission array to pick out all the student IDs, then filter out the duplicates to find unique IDs, then feed it into the getLearnerScore function below.
-// This approach did not work well since the program did not calculate the correct average scrore and I cannot figure out how to exclude the assignment that is not yet due.
+// calculate based on the student ID, make a function to compile all the submitted assignments and score for each student ID, store it as an object, then use this info in the main function to process further.
 
 
 function getLearnerScore(learnerID, learnerSubmission, assignmentArr) {
@@ -237,112 +236,7 @@ function getLearnerData(courseInfo, assignmentGroup, learnerSubmission) {
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
-console.log('This is the result of the whole program (first approach)')
+console.log('Result of the whole program ')
 console.log(result);
 
 
-
-/////////////////////////////////////////////////////////////////////////////////////
-// SECOND Approach WIP: Calculate based on the AssignmentGroup object. Go through each learnerSubmission object, check assignmentGroup to add properties of points possible and see if the assignment is yet due, on time or late. Store this is an array of objects. Apply calculation later.
-
-function getAssignmentData(assignmentGroup, learnerSubmission) {
-   let assignmentObjArr = assignmentGroup.assignments;
-   
-   let resultArr = [];
-
-   // iterate through learnerSubmission array, check each assignment id, get its extra info on point possible and due time from assignmentGroup, store in result array
-   for (let i=0; i < learnerSubmission.length; i++) {
-       let submissionItem = learnerSubmission[i];
-
-       let resultObj = {};
-       resultObj['learner_id'] = submissionItem['learner_id'];
-       resultObj['assignment_id'] = submissionItem['assignment_id'];
-       resultObj['learner_score'] = submissionItem.submission['score'];
-       resultObj['points_possible'] = getPointsPossible(resultObj['assignment_id'], assignmentObjArr)
-   
-       resultObj['isLate'] = false;
-       
-       // compare the time submitted with time due
-       let assignmentDueTime = getDueTime(resultObj['assignment_id'], assignmentObjArr);
-
-       let assignmentDueTimeDate = getDate(assignmentDueTime);
-       let learnerSubmitTime = getDate(submissionItem.submission['submitted_at']);
-       let today = getDate();
-
-       // is this assignment due yet? if not, then exclude it
-       if (today < assignmentDueTimeDate) {
-           continue;
-       }
-
-       // is this on time or late
-       if (assignmentDueTimeDate < learnerSubmitTime) {
-           resultObj['isLate'] = true;
-       }
-       resultArr.push(resultObj);
-   }
-   return resultArr;
-}
-
-
-// calculate the percentage and average based on each student ID 
-function calculateAverage (learnerID, learnerSubmissionObjArr) {
-   let resultObj = {};
-   resultObj['id'] = learnerID;
-
-   let totalLearnerScore = 0;
-   let totalPointsPossible = 0;
-
-   for(let i=0; i < learnerSubmissionObjArr.length; i++) {
-       let assignmentObj = learnerSubmissionObjArr[i];
-       let assignmentID = assignmentObj['assignment_id'];
-   
-       if (assignmentObj['learner_id'] == learnerID) {
-           let learnerScore = assignmentObj['learner_score'];
-
-           let lateScore = 0;
-
-           if (assignmentObj.isLate) {
-               lateScore = assignmentObj['points_possible']*0.1;
-               learnerScore -= lateScore;
-           }
-           resultObj[assignmentID] = learnerScore/ assignmentObj['points_possible'];
-
-           totalLearnerScore += learnerScore;
-           totalPointsPossible += assignmentObj['points_possible'];
-       }
-   }
-   // calculate average 
-   resultObj['avg'] = totalLearnerScore/totalPointsPossible;
-
-   return resultObj;
-}
-
-
-// MAIN FUNCTION FOR SECOND APPROACH
-function getLearnerData2(courseInfo, assignmentGroup, learnerSubmission) {
-   // throw an error if the course id do not match
-   try {
-       if (courseInfo['id'] !== assignmentGroup['course_id']) {
-           throw new Error('The AssignmentGroup does not belong to this course, please check course ID and try again.');
-       }        
-   } catch (error) {
-       return error; //this will end the program
-   }
-   
-   const allAssignmentData = getAssignmentData(AssignmentGroup, LearnerSubmissions);
-   
-   const result = [];
-
-   const allLearnerIdsArr = getLearnerUniqueID(learnerSubmission);
-   allLearnerIdsArr.forEach((id) => {
-       const resultObj = calculateAverage(id, allAssignmentData);
-       result.push(resultObj);
-   })
-   return result;
-}
-
-
-const result2 = getLearnerData2(CourseInfo, AssignmentGroup, LearnerSubmissions);
-
-console.log('This is the result of the whole program (second approach)')
-console.log(result2);
